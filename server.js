@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const path = require("path");
 require("dotenv").config();
 
-const port = 1338;
+const port = process.env.PORT || 1338;
 const app = express();
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -33,7 +33,7 @@ async function serverСonfig() {
       db.query("SELECT * FROM gantt_links"),
     ])
       .then((results) => {
-        let tasks = results[0][0],
+        const tasks = results[0][0],
           links = results[1][0];
 
         for (let i = 0; i < tasks.length; i++) {
@@ -55,12 +55,12 @@ async function serverСonfig() {
 
   // add a new task
   app.post("/data/task", (req, res) => {
-    let task = getTask(req.body);
+    const task = getTask(req.body);
     // find task with highest sortorders
     db.query("SELECT MAX(sortorder) AS maxOrder FROM gantt_tasks")
       .then((result) => {
         // assign max sort order to new task
-        let orderIndex = (result[0][0].maxOrder || 0) + 1;
+        const orderIndex = (result[0][0].maxOrder || 0) + 1;
         return db.query(
           "INSERT INTO gantt_tasks(text, start_date, duration," +
             "progress, parent, sortorder) VALUES (?,?,?,?,?,?)",
@@ -84,10 +84,9 @@ async function serverСonfig() {
 
   // update a task
   app.put("/data/task/:id", (req, res) => {
-    let sid = req.params.id,
+    const sid = req.params.id,
       target = req.body.target,
       task = getTask(req.body);
-    console.log({ task });
     Promise.all([
       db.query(
         "UPDATE gantt_tasks SET text = ?, start_date = ?," +
@@ -145,7 +144,7 @@ async function serverСonfig() {
 
   // delete a task
   app.delete("/data/task/:id", (req, res) => {
-    let sid = req.params.id;
+    const sid = req.params.id;
     db.query("DELETE FROM gantt_tasks WHERE id = ?", [sid])
       .then((result) => {
         sendResponse(res, "deleted");
@@ -157,7 +156,7 @@ async function serverСonfig() {
 
   // add a link
   app.post("/data/link", (req, res) => {
-    let link = getLink(req.body);
+    const link = getLink(req.body);
 
     db.query("INSERT INTO gantt_links(source, target, type) VALUES (?,?,?)", [
       link.source,
@@ -174,7 +173,7 @@ async function serverСonfig() {
 
   // update a link
   app.put("/data/link/:id", (req, res) => {
-    let sid = req.params.id,
+    const sid = req.params.id,
       link = getLink(req.body);
 
     db.query(
@@ -191,7 +190,7 @@ async function serverСonfig() {
 
   // delete a link
   app.delete("/data/link/:id", (req, res) => {
-    let sid = req.params.id;
+    const sid = req.params.id;
     db.query("DELETE FROM gantt_links WHERE id = ?", [sid])
       .then((result) => {
         sendResponse(res, "deleted");
@@ -220,9 +219,9 @@ async function serverСonfig() {
   }
 
   function sendResponse(res, action, tid, error) {
-    if (action == "error") console.log(error);
+    if (action === "error") console.log(error);
 
-    let result = {
+    const result = {
       action: action,
     };
     if (tid !== undefined && tid !== null) result.tid = tid;
