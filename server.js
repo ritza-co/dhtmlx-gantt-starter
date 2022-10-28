@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 const path = require("path");
 require("dotenv").config();
 
-const port = 1338;
+const port = process.env.PORT || 1338;
 const app = express();
 
 app.use(express.static(path.join(__dirname, "public")));
@@ -48,7 +48,7 @@ async function serverСonfig() {
   function sendResponse(res, action, tid, error) {
     if (action == "error") console.log(error);
 
-    let result = {
+    const result = {
       action: action,
     };
     if (tid !== undefined && tid !== null) result.tid = tid;
